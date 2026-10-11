@@ -5,7 +5,7 @@ export const PROMPT = 'This is a Vaccine Vial Monitor (VVM) on a vaccine vial: a
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' })
   const image = req.body?.image
-  if (typeof image !== 'string' || !image.startsWith('data:image/') || image.length > 400000) return res.status(400).json({ error: 'bad image' })
+  if (typeof image !== 'string' || !image.startsWith('data:image/') || image.length > 1500000) return res.status(400).json({ error: 'bad image' })
   if (!process.env.FEATHERLESS_API_KEY) return res.status(503).json({ error: 'model not configured' })
   try {
     const r = await fetch('https://api.featherless.ai/v1/chat/completions', {
