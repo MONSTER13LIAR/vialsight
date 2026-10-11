@@ -8,3 +8,4 @@ research/
 notes/
 CLAUDE.md
 .claude/
+.env*
