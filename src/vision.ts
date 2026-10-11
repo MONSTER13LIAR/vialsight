@@ -90,6 +90,9 @@ export function findLabels(img: ImageData): Ellipse[] {
     const c = contours.get(i)
     const area = cv.contourArea(c)
     if (area < minArea || c.rows < 12) { c.delete(); continue }
+    const perim = cv.arcLength(c, true)
+    const circularity = (4 * Math.PI * area) / Math.max(1, perim * perim)
+    if (circularity < 0.8) { c.delete(); continue } // squares and blobs are not VVM circles
     const r = cv.fitEllipse(c)
     const a = r.size.width / 2, b = r.size.height / 2
     const ellArea = Math.PI * a * b
