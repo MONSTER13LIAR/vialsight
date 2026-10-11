@@ -1,0 +1,15 @@
+<!doctype html><html><body><pre id="o">running</pre>
+<script type="module">
+import { loadOpenCV, analyze } from './src/vision.ts'
+import { renderTray } from './src/synth.ts'
+await loadOpenCV()
+const deltas = [30, 18, 9, 4, 1, 0, -3, -8]
+const out = []
+for (const [i, d] of deltas.entries()) {
+  const { canvas } = renderTray({ seed: 900 + i, deltas: [d], cols: 1, rows: 1, width: 420, height: 420 })
+  const img = canvas.getContext('2d').getImageData(0, 0, 420, 420)
+  const r = analyze(img)[0]
+  out.push({ delta: d, photo: canvas.toDataURL('image/png'), vs: r ? r.verdict : 'NONE', vsDelta: r ? r.deltaL : null })
+}
+window.__out = out; document.getElementById('o').textContent = 'DONE'
+</script></body></html>

@@ -1,0 +1,10 @@
+node_modules
+dist
+.vercel
+.env
+.env.*
+plan.md
+research/
+notes/
+CLAUDE.md
+.claude/

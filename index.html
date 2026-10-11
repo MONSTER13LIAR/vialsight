@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VialSight · Reads the heat label on every vaccine vial</title>
+  <meta name="description" content="Point a camera at vaccine vials. VialSight measures each Vaccine Vial Monitor and applies the WHO discard rule, with the number behind every call. Runs offline in the browser." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="#1e5eff"/><rect x="11" y="11" width="10" height="10" rx="1.5" fill="#fff"/></svg><span>VialSight</span></a>
+    <nav><a href="#scan">Scan</a><a href="#how">How it works</a><a href="#accuracy">Accuracy</a><a href="#ai">Why not ask AI</a></nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">Image AI for the cold chain</p>
+      <h1>Every vaccine vial carries a heat label.<br /><span class="accent">VialSight reads it for you.</span></h1>
+      <p class="lede">The Vaccine Vial Monitor is a small square inside a circle. When the square turns as dark as the circle, the vaccine has had too much heat and must be thrown away. Health workers judge this by eye, on over a billion labels a year. VialSight measures it, applies the WHO rule, and shows the number behind every call.</p>
+    </section>
+
+    <section id="scan" class="bench">
+      <div class="bench-tools">
+        <button class="btn primary" data-act="demo">Demo tray</button>
+        <button class="btn" data-act="hard">New hard tray</button>
+        <button class="btn" data-act="who">WHO reference labels</button>
+        <label class="btn">Upload photo<input type="file" accept="image/*" id="file" hidden /></label>
+        <button class="btn" data-act="camera" id="camBtn">Live camera</button>
+      </div>
+      <div class="bench-grid">
+        <div class="viewer">
+          <canvas id="view"></canvas>
+          <video id="video" playsinline muted hidden></video>
+          <div class="status" id="status">Loading the vision engine…</div>
+        </div>
+        <aside class="panel">
+          <div class="summary" id="summary"><div class="sum-big">–</div><div class="sum-sub">Pick a tray or point the camera at vials</div></div>
+          <ol class="vials" id="vials"></ol>
+          <button class="btn small" id="csv" disabled>Export log (CSV)</button>
+        </aside>
+      </div>
+      <div class="detail" id="detail" hidden></div>
+    </section>
+
+    <section id="how" class="how">
+      <h2>How it reads a label</h2>
+      <p class="section-lede">No AI model makes the decision. Image processing finds and measures the label, and an exact rule decides.</p>
+      <ol class="steps">
+        <li><b>Find</b><span>Contours and an ellipse fit locate every outer circle in the frame, at any size or rotation.</span></li>
+        <li><b>Straighten</b><span>Each ellipse is resampled into a front-on circle, which undoes the camera's tilt.</span></li>
+        <li><b>Measure</b><span>Pixels move to CIELAB, a colour space built on human lightness. The square's centre is compared with the circle's ring.</span></li>
+        <li><b>Self-calibrate</b><span>The circle is the label's own reference colour. A fitted plane across it cancels uneven light, so no colour card is needed.</span></li>
+        <li><b>Decide</b><span>WHO rule: discard when the square is the same as or darker than the circle. Glare, blur, tilt or an unstable reading asks for a rescan instead of a guess.</span></li>
+      </ol>
+      <figure class="rule"><img src="/who-vvm-graphic.png" alt="WHO graphic: square lighter than circle means use; square matching or darker than circle means discard." /><figcaption>The WHO reading rule. VialSight reads all three labels in this graphic correctly (try "WHO reference labels" above).</figcaption></figure>
+    </section>
+
+    <section id="accuracy" class="acc">
+      <h2>Accuracy, measured</h2>
+      <p class="section-lede">Synthetic trays with known ground truth: every square is set to a known lightness offset from its circle, then hit with uneven light, colour cast, tilt, rotation, glare, noise and blur. Run it yourself.</p>
+      <div class="acc-tools"><button class="btn primary" id="runEval">Run 30 trays (240 labels)</button><span id="evalProg"></span></div>
+      <div id="evalOut" class="eval-out"></div>
+    </section>
+
+    <section id="ai" class="ai">
+      <h2>Why not just ask an AI?</h2>
+      <p class="section-lede">We asked a state-of-the-art vision-language model, Qwen3-VL-30B, the same question on the same labels. Reading a few lightness units of difference is a measurement, not a description.</p>
+      <div id="aiTable" class="ai-table"></div>
+      <p class="note" id="aiLive"></p>
+    </section>
+
+    <section class="limits">
+      <h2>Limits, honestly</h2>
+      <ul>
+        <li>Decision support for trained staff, not a replacement for them. When unsure, it asks for a rescan.</li>
+        <li>A VVM shows cumulative heat. It does not show freezing damage; the shake test still applies.</li>
+        <li>Validated here on synthetic labels and WHO reference artwork. A field trial on real vials is the next step.</li>
+        <li>The USE FIRST band is a field convention. WHO defines only the discard point, which VialSight applies exactly.</li>
+      </ul>
+    </section>
+  </main>
+  <footer class="foot">Built for Banana Hacks 2026 · Runs in your browser, works offline after first load · <a href="https://github.com/MONSTER13LIAR/vialsight">Source</a></footer>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

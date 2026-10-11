@@ -1,0 +1,20 @@
+<!doctype html><html><body><pre id="o">running</pre>
+<script type="module">
+import { loadOpenCV, analyze } from './src/vision.ts'
+import { renderTray, DEMO_DELTAS } from './src/synth.ts'
+import { evaluate } from './src/evaluate.ts'
+const o = document.getElementById('o'), log = (s) => { o.textContent += '\n' + s }
+await loadOpenCV()
+const { canvas, truth } = renderTray({ seed: 7, deltas: DEMO_DELTAS })
+const img = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)
+const r = analyze(img)
+log('demo detections ' + r.length)
+for (const x of r) log([x.cx|0, x.cy|0, x.deltaL.toFixed(1), x.lo.toFixed(1), x.hi.toFixed(1), x.verdict, x.reason, 'glare', x.glare.toFixed(2), 'edge', x.edge.toFixed(2), 'tilt', x.tilt.toFixed(2)].join(' '))
+for (const t of truth) log('truth ' + [t.cx|0, t.cy|0, t.delta, t.expected, t.glare].join(' '))
+const w = new Image(); w.src = '/who-vvm-graphic.png'; await w.decode()
+const c2 = document.createElement('canvas'); c2.width = w.width; c2.height = w.height; c2.getContext('2d').drawImage(w, 0, 0)
+const r2 = analyze(c2.getContext('2d').getImageData(0, 0, w.width, w.height))
+log('WHO graphic: ' + r2.map(x => [x.cx|0, x.cy|0, x.deltaL.toFixed(1), x.verdict].join(' ')).join(' | '))
+globalThis.__unsafe = []; for (const hard of [false, true]) { const e = await evaluate(hard ? 15 : 15, hard); log((hard?'HARD ':'NORMAL ') + JSON.stringify(e)) }
+log(JSON.stringify(globalThis.__unsafe)); log('DONE')
+</script></body></html>
